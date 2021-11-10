@@ -35,7 +35,7 @@ fn fib_wrapper(inp: &i32) {
 
 
 fn main() {
-    const UPPER: i32 = 55;
+    const UPPER: i32 = 65;
     const LOWER: i32 = 1;
     // check for command line args
     #[derive(StructOpt, Debug)]
@@ -73,15 +73,15 @@ fn main() {
         },
     }
 
-    let pid = unsafe {fork()};
+    let new_pid = unsafe {fork()};
+    println!("New pid is {:?}",new_pid);
 
-
-    match pid.expect("Failed Fork: Cannot create child process!!"){
+    match new_pid.expect("Failed Fork: Cannot create child process!!"){
         Child => {
             println!("This is the child process: pid = {}, parent pid = {}", getpid(), getppid());
             println!("Calling command {} ",args[0].to_string());
             let tt = _func+1;
-            let xxx = Command::new(&args[0].to_string()).args(["-f",&tt.to_string()]).status().expect("failed to execute process");
+            let xxx = Command::new(&args[0].to_string()).args(["-f",&tt.to_string()]).spawn().expect("failed to execute process");
             println!("Called {:?}",xxx);
         },
         Parent { child} =>{
