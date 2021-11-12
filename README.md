@@ -7,7 +7,8 @@ A program designed to create a burst of activity
 
 ## About The Project
 
-A simple TCP client written in rust. Might be useful for some
+Just something to eat some CPU and generate some network traffic
+
 
 ### Built With
 
