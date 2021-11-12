@@ -1,6 +1,10 @@
 //! Rust quasar A program to periodically create a burst of network, cpu and disk IO activity
 //! Dwight J. Browne
 //!
+//!
+
+mod udp_bomb;
+pub use crate::udp_bomb::bmb;
 
 use std::env;
 use git_version::git_version;
@@ -9,14 +13,11 @@ use std::time::Instant;
 use nix::sys::wait::wait;
 use nix::unistd::ForkResult::{Child, Parent};
 use nix::unistd::{fork, getpid, getppid};
-
-
 use std::process::{Command, exit};
+use crate::bmb::threader;
 
 
 // Exponential complexity to consume resources
-
-
 fn fib(inp: u64) -> u64 {
     match inp {
         0 | 1 | 2 => 1,
@@ -35,7 +36,8 @@ fn fib_wrapper(inp: &i32) {
 
 
 fn main() {
-    const UPPER: i32 = 65;
+
+    const UPPER: i32 = 6;
     const LOWER: i32 = 1;
     // check for command line args
     #[derive(StructOpt, Debug)]
@@ -44,6 +46,7 @@ fn main() {
     struct Opt {
         #[structopt(default_value = "0", short)]
         func: i32,
+
     }
 
     let opt = Opt::from_args();
@@ -88,6 +91,8 @@ fn main() {
 
             let _res = wait();
             println!("This is the parent pid = {}, child= {}",getpid(), child);
+            threader(3,host_name.to_str().unwrap(),
+                     getpid().as_raw(),"localhost", 2000,1);
         }
     }
 }
