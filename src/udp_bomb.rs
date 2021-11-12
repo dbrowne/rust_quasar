@@ -1,15 +1,22 @@
+//! Simple udp flooder
+//! Dwight J. Browne
+
+
+
 pub mod bmb{
-    use std::ffi::OsString;
     use std::net::UdpSocket;
     use std::str;
     use chrono::Utc;
-    use nix::unistd::getpid;
     use std::io::Write;
-    use std::os::unix::raw::pid_t;
+    use libc::pid_t;
     use rand::{distributions::Alphanumeric, Rng};
-    use std::{process::exit, thread, time};
+    use std::{process::exit, thread};
 
+    /// creates a random length string of random characters from the set of
+    /// printable alphanumeric characters
+    /// see https://stackoverflow.com/questions/54275459/how-do-i-create-a-random-string-by-sampling-from-alphanumeric-characters
     fn gen_payload(min_len: i32, max_len: i32) -> String {
+
         let u_min: usize = min_len as usize;
         let u_max: usize = max_len as usize;
         rand::thread_rng()
@@ -21,6 +28,7 @@ pub mod bmb{
 
 
     fn udp_push(hostname: &str, pid: pid_t, seq: i32, target_host: &str, target_port: i32, payload: &str, recv: i32) {
+        /// A simple
         const K_MAX_BUFSIZE: usize = 2048;
 
         let mut send_string = Vec::new();
@@ -50,7 +58,13 @@ pub mod bmb{
             udp_push(&hostname, pid, i, target_host, target_port, &payload, recv);
         }
     }
-
+    /// Addresses the ownership issues when passing strings to a thread
+    /// ```
+    /// let static_target_host = format!("{}", target_host.clone())
+    ///  ..., &static_target_host.to_string(),  provides the needed static variables.
+    /// ```
+    /// todo: provide a better explanation
+    ///
     pub fn threader(thread_count: i32, hostname: &str, pid: pid_t, target_host: &str, target_port: i32, recv: i32) {
         for thd_id in 1..thread_count + 1 {
             let static_hostname = format!("{}", hostname.clone()); //get ownership for the thread
